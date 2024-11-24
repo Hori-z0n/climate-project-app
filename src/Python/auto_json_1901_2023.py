@@ -1,14 +1,10 @@
 import geopandas as gpd
-import matplotlib.pyplot as plt
-import numpy as np
 import time
 import warnings
 import xarray as xr
-from shapely.geometry import Polygon
 import pandas as pd
 import json
-import cartopy.feature as cfeature
-import cartopy.crs as ccrs
+import time
 warnings.filterwarnings('ignore')
 
 start = time.perf_counter()
@@ -61,6 +57,8 @@ for times in netcdf_data['time'].values:
     "features": features
     }
     output_file = f"./src/json_series/json_{str(times)[0:10]}.json"
+    # output_file = f"C:/Users/konla/OneDrive/Desktop/Python/json_series/json_{str(times)[0:10]}.json"
+    
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(geojson_data, f, ensure_ascii=False, indent=4)
 

@@ -8,7 +8,8 @@ import json
 warnings.filterwarnings('ignore')
 
 fig, ax = plt.subplots(figsize=(10, 10))
-test = gpd.read_file('./src/Geo-data/nc_to_json_2001.json')
+# test = gpd.read_file('./src/Geo-data/nc_to_json_2001.json')
+test = gpd.read_file('./src/Geo-data/province_mean_temp_1901-01-16.json')
 # test = gpd.read_file("src/Geo-data/thailand-Geo.json")
 # test = gpd.read_file('./src/Geo-data/province_mean_temp_2001.json')
 # test = gpd.read_file('C:/Users/konla/OneDrive/Desktop/climate-project-app/src/json_series/json_1901-01-16.json')
