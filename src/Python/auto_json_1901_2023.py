@@ -66,4 +66,7 @@ for times in netcdf_data['time'].values:
 
     print(f"save data to file : {output_file}")
     count += 1
-print(count)
+
+# print(count)
+elapsed = time.perf_counter() - start
+print(f"{__file__} executed in {elapsed} seconds.")
