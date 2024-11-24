@@ -7,8 +7,8 @@ import xarray as xr
 from shapely.geometry import Polygon
 import pandas as pd
 import json
-import cartopy.feature as cfeature
-import cartopy.crs as ccrs
+import climate_V_thailand as cli
+
 warnings.filterwarnings('ignore')
 
 start = time.perf_counter()
