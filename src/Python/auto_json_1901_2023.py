@@ -57,7 +57,7 @@ for times in netcdf_data['time'].values:
     "features": features
     }
     output_file = f"./src/json_series/json_{str(times)[0:10]}.json"
-    # output_file = f"C:/Users/konla/OneDrive/Desktop/Python/json_series/json_{str(times)[0:10]}.json"
+    output_file = f"C:/Users/konla/OneDrive/Desktop/Python/json_series/json_{str(times)[0:10]}.json"
     
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(geojson_data, f, ensure_ascii=False, indent=4)
