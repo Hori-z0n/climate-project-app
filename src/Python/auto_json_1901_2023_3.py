@@ -6,8 +6,9 @@ import numpy as np
 from shapely.geometry import mapping
 from province import province_coord  # ดึงข้อมูลพิกัดของจังหวัดในแต่ละภาคจาก province.py
 from gridcal import calculate_weighted_temperature
-
+import time
 # ds = xr.open_dataset('./cru_ts4.08.1901.2023.tmp.dat.nc')
+start = time.perf_counter()
 ds = xr.open_dataset('D:/Program/PROJECT/Python/cru_ts4.08.1901.2023.tmp.dat.nc')
 
 def create_grid_polygon(lon_center, lat_center, lon_step, lat_step):
@@ -108,3 +109,6 @@ for i in range(0, 10):
         json.dump(geojson_data, geojson_file, indent=2, ensure_ascii=False)
 
     print("GeoJSON data saved successfully.")
+
+elapsed = time.perf_counter() - start
+print(f"{__file__} executed in {elapsed} seconds.")
