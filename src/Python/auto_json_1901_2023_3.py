@@ -80,7 +80,7 @@ for i in range(0, 10):
     for month in range(1, 13):
         
         monthly_data = data[data['month'] == month]
-        print(f"Processing data for Month {month}: {len(monthly_data)} entries")
+        # print(f"Processing data for Month {month}: {len(monthly_data)} entries")
 
         # เรียกใช้ฟังก์ชัน calculate_weighted_temperature สำหรับทุกจังหวัด
         for region in province_coord():  # ดึงข้อมูลจังหวัดในแต่ละภาค
@@ -91,12 +91,13 @@ for i in range(0, 10):
                 if avg_temp is not None and province_shape is not None:
                     feature = {
                         "type": "Feature",
-                        "geometry": mapping(geometry), 
+                        "geometry": mapping(geometry),
                         "properties": {
+                            "ID": count,
                             "name": name,
                             "temperature": float(f"{avg_temp:.2f}"),  
                             "region": region_name,
-                            "month": month  
+                            "month": month
                         }
                     }
                     geojson_data["features"].append(feature)
