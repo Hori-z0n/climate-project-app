@@ -327,7 +327,6 @@ def spatial_overlays(df1, df2, how='intersection', reproject=True):
             for k in j:
                 nei.append([i,k])
         pairs = pd.DataFrame(nei, columns=['idx1', 'idx2'])
-        print(pairs)
         pairs = pairs.merge(df1, left_on='idx1', right_index=True)
         pairs = pairs.merge(df2, left_on='idx2', right_index=True, suffixes=['_1','_2'])
         pairs['Intersection'] = pairs.apply(lambda x: (x['geometry_1'].intersection(x['geometry_2'])).buffer(0), axis=1)
