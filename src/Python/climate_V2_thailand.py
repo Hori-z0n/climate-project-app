@@ -737,7 +737,8 @@ def calculate_weighted_polygon(province_name, shapefile, data, cru):
         elif(cru == 'wet'):
             point_value = grid['Rain-Days']
         else:
-            print("You select ")
+            print("You select something wrong try again")
+            break
             
         point_value = np.nan_to_num(point_value, nan=0.0)
         

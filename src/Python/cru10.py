@@ -7,6 +7,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 import time
+import geopandas as gpd
 import warnings
 from datetime import datetime, timedelta
 warnings.filterwarnings('ignore')
@@ -24,14 +25,16 @@ tmx = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2
 vap = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.vap.dat.nc')
 wet = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.wet.dat.nc')
 
-print('cld---------------------------------------------------------------------')
-print(cld['cld'].attrs['units'])
+data = gpd.read_file('./src/Geo-data/Year-Dataset/data_cld_1901.json') 
+print(data)
+# print('cld---------------------------------------------------------------------')
+# print(cld['cld'].attrs['units'])
 print('dtr---------------------------------------------------------------------')
 print(dtr['dtr'].attrs['units'])
-print('frs---------------------------------------------------------------------')
-print(frs['frs'])
-print('pet---------------------------------------------------------------------')
-print(pet['pet'].attrs['units'])
+# print('frs---------------------------------------------------------------------')
+# print(frs['frs'])
+# print('pet---------------------------------------------------------------------')
+# print(pet['pet'].attrs['units'])
 print('pre---------------------------------------------------------------------')
 print(pre['pre'].attrs['units'])
 print('tmn---------------------------------------------------------------------')
@@ -40,11 +43,11 @@ print('tmp---------------------------------------------------------------------'
 print(tmp['tmp'].attrs['units'])
 print('tmx---------------------------------------------------------------------')
 print(tmx['tmx'].attrs['units'])
-print('vap---------------------------------------------------------------------')
-print(vap['vap'].attrs['units'])
-print('wet---------------------------------------------------------------------')
-print(wet['wet'])
-print('------------------------------------------------------------------------')
+# print('vap---------------------------------------------------------------------')
+# print(vap['vap'].attrs['units'])
+# print('wet---------------------------------------------------------------------')
+# print(wet['wet'])
+# print('------------------------------------------------------------------------')
 
 # # fig, axs = plt.subplots(nrows=1, ncols=1, figsize=(18, 12), subplot_kw={'projection': ccrs.PlateCarree()})
 # llon = 94
