@@ -7,24 +7,18 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import mapping
 from province import province_coord
-from datetime import datetime, timedelta
 import warnings
 import json
-import time
+from tqdm import tqdm
 
 warnings.filterwarnings('ignore')
-# import pandas as pd
 
 cld = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.cld.dat.nc')
 dtr = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.dtr.dat.nc')
-# frs = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.frs.dat.nc')
-# pet = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.pet.dat.nc')
 pre = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.pre.dat.nc')
 tmn = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.tmn.dat.nc')
 tmp = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.tmp.dat.nc')
 tmx = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.tmx.dat.nc')
-# vap = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.vap.dat.nc')
-# wet = xr.open_dataset('C:/Users/konla/OneDrive/Desktop/Weather/cru_ts4.08.1901.2023.wet.dat.nc')
 
 def create_grid_polygon(lon_center, lat_center, lon_step, lat_step):
     return [
@@ -78,12 +72,10 @@ def calculate_weighted_polygon(province_name, shapefile, data, cru):
     return average_value, province_coord.geometry
 
 
-start_year = 1901
-stop_year = 1902
-# stop_year = 2023
-# year = 1901
+start_year = 1902
+stop_year = 1903
 
-for year in range(start_year, stop_year):
+for year in tqdm(range(start_year, stop_year), desc="Create GeoJson...", ascii=False, ncols=75):
     data1 = dtr.sel(lon=slice(96, 106), lat=slice(4, 21), time=str(year))
     time_values1 = data1['time'].values
     time_dates1 = pd.to_datetime(time_values1)
@@ -101,9 +93,9 @@ for year in range(start_year, stop_year):
     time_dates5 = pd.to_datetime(time_values4)
 
     if len(time_dates1) == len(time_dates2) == len(time_dates3) == len(time_dates4) == len(time_dates5):
-        print(f"Data for year {year} passed time consistency check.")
+        print(f"\nData for year {year} passed time consistency check.")
     else:
-        print(f"Data for year {year} failed time consistency check.")
+        print(f"\nData for year {year} failed time consistency check.")
         # continue
 
     lon = cld['lon'].values
@@ -111,7 +103,7 @@ for year in range(start_year, stop_year):
     lon_step = float(lon[1] - lon[0])
     lat_step = float(lat[1] - lat[0])
     features = []
-    for time_index, time in enumerate(time_dates1):
+    for time_index, time in tqdm(enumerate(time_dates1), desc="Loading time...", ascii=False, ncols=75 ):
         month = time.month
 
         dtr_in_month = dtr.isel(time=time_index) 
@@ -130,9 +122,8 @@ for year in range(start_year, stop_year):
         tmx_values = tmx_in_month['tmx'].values  
         
         
-        for i, lon_value in enumerate(lon):
+        for i, lon_value in tqdm(enumerate(lon), desc="create grid...", ascii=False, ncols=75):
             for j, lat_value in enumerate(lat):
-                # cloud_cover = cld_values[j, i]  
                 diural_temperature_range = dtr_values[j, i]
                 precipitation = pre_values[j, i]
                 minimum_temperature = tmn_values[j, i]
@@ -160,28 +151,10 @@ for year in range(start_year, stop_year):
         "type": "FeatureCollection",
         "features": features
     }
-    # print(geojson_data)
-    # print(pd.DataFrame(geojson_data))
-    # print(pd.Series(geojson_data))
-    # print(gpd.GeoSeries(geojson_data))
-    # print(gpd.GeoDataFrame(geojson_data))
-    # print(gpd.GeoDataFrame(geojson_data['features']['properties'][:]))
-    # data = pd.DataFrame.transpose(geojson_data['features'])
-    # print(data.properties.values)
-
-    # data = data.properties
-    # gdf = gpd.GeoDataFrame(data.values, crs=4326)
-    # gdf = gpd.GeoDataFrame(data.values, crs=3857)
-
-    # print(gdf)
     data = gpd.GeoDataFrame.from_features(geojson_data['features'])
-    # output_file = f'./src/Geo-data/Year-Dataset/data_{year}.json'
-    # with open(output_file, 'w', encoding='utf-8') as f:
-    #     json.dump(geojson_data, f, ensure_ascii=False, indent=4)
 
-    print("GeoJSON data grid saved successfully.")
+    print("\nGeoJSON data grid create successfully.")
 
-    # data = gpd.read_file(f'./src/Geo-data/Year-Dataset/data_{year}.json')  
     shapefile = gpd.read_file('./src/Geo-data/thailand-Geo.json')
 
     geojson_data = {
@@ -191,12 +164,12 @@ for year in range(start_year, stop_year):
 
     count = 0
 
-    for month in range(1, 13):
+    for month in tqdm(range(1, 13), desc="month...", ascii=False, ncols=75):
         
         monthly_data = data[data['month'] == month]
         print(f"Processing data for Month {month}: {len(monthly_data)} entries")
 
-        for region in province_coord(): 
+        for region in tqdm(province_coord(), desc="Loading region & province...", ascii=False, ncols=75): 
             for province in region:
                 name, geometry, region_name = province
                 avg_dtr, province_shape1 = calculate_weighted_polygon(name, shapefile, monthly_data, cru='dtr')
@@ -223,14 +196,14 @@ for year in range(start_year, stop_year):
                     geojson_data["features"].append(feature)
 
                 count += 1
-                print(f"{count}: Month {month}, Province: {name}, Diural Temperature Range: {avg_dtr:.3f}")
-                print(f"{count}: Month {month}, Province: {name}, Precipitation:            {avg_pre:.3f}")
-                print(f"{count}: Month {month}, Province: {name}, Minimum Temperature:      {avg_tmn:.3f}")
-                print(f"{count}: Month {month}, Province: {name}, Mean Temperature:         {avg_tmp:.3f}")
-                print(f"{count}: Month {month}, Province: {name}, Maximum Temperature:      {avg_tmx:.3f}")
+                # print(f"{count}: Month {month}, Province: {name}, Diural Temperature Range: {avg_dtr:.3f}")
+                # print(f"{count}: Month {month}, Province: {name}, Precipitation:            {avg_pre:.3f}")
+                # print(f"{count}: Month {month}, Province: {name}, Minimum Temperature:      {avg_tmn:.3f}")
+                # print(f"{count}: Month {month}, Province: {name}, Mean Temperature:         {avg_tmp:.3f}")
+                # print(f"{count}: Month {month}, Province: {name}, Maximum Temperature:      {avg_tmx:.3f}")
 
     output_geojson_path = f'./src/Geo-data/Year-Dataset/data_{year}.json'
     with open(output_geojson_path, 'w', encoding='utf-8') as geojson_file:
         json.dump(geojson_data, geojson_file, indent=2, ensure_ascii=False)
 
-    print("GeoJSON data polygon saved successfully.")
+    print("\nGeoJSON file polygon saved complete.")
