@@ -151,6 +151,7 @@ for year in tqdm(range(start_year, stop_year), desc="Create GeoJson...", ascii=F
         "type": "FeatureCollection",
         "features": features
     }
+
     data = gpd.GeoDataFrame.from_features(geojson_data['features'])
 
     print("\nGeoJSON data grid create successfully.")
@@ -164,11 +165,12 @@ for year in tqdm(range(start_year, stop_year), desc="Create GeoJson...", ascii=F
 
     count = 0
 
+    # for month in (range(1, 13)):
     for month in tqdm(range(1, 13), desc="Create month...", ascii=False, ncols=75, colour='green'):
-        
         monthly_data = data[data['month'] == month]
         print(f"Processing data for Month {month}: {len(monthly_data)} entries")
 
+        # for region in province_coord(): 
         for region in tqdm(province_coord(), desc="Loading region & province...", ascii=False, ncols=75, colour='yellow'): 
             for province in region:
                 name, geometry, region_name = province
@@ -177,7 +179,7 @@ for year in tqdm(range(start_year, stop_year), desc="Create GeoJson...", ascii=F
                 avg_tmn, province_shape3 = calculate_weighted_polygon(name, shapefile, monthly_data, cru='tmn')
                 avg_tmp, province_shape4 = calculate_weighted_polygon(name, shapefile, monthly_data, cru='tmp')
                 avg_tmx, province_shape5 = calculate_weighted_polygon(name, shapefile, monthly_data, cru='tmx')
-                
+
                 if (avg_dtr is not None and province_shape1 is not None) and (avg_pre is not None and province_shape2 is not None) and (avg_tmn is not None and province_shape3 is not None) and (avg_tmp is not None and province_shape4 is not None) and (avg_tmx is not None and province_shape5 is not None):
                     feature = {
                         "type": "Feature",
@@ -197,7 +199,69 @@ for year in tqdm(range(start_year, stop_year), desc="Create GeoJson...", ascii=F
 
                 count += 1
 
-    output_geojson_path = f'./src/Geo-data/Year-Dataset/data_{year}.json'
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": features
+    }
+    data = gpd.GeoDataFrame.from_features(geojson_data['features'])
+    
+    print(data)
+    # dtr_year_value = []
+    # tnn_year_value = []
+    # txx_year_value = []
+    for i in tqdm(range(1, 13), desc="Create month...", ascii=False, ncols=75, colour='green'):
+        max_value = {'month':int(), 'name':str(), 'temperature':0.0}
+        min_value = {'month':int(), 'name':str(), 'temperature':100.0}
+        dtr_value = {'month':int(), 'name':str(), 'tmp_range':0.0, }
+        data_filter = gpd.GeoDataFrame(data, columns=('month','name','tmx','tmn','dtr'))
+        for ds in tqdm(data_filter[data_filter['month'] == i].values):
+                if max_value['temperature'] < ds[2]:
+                    max_value['temperature'] = ds[2]
+                    max_value['name'] = ds[1]
+                elif max_value['temperature'] > ds[2] :
+                    continue
+                else:
+                    print('something is wrong')
+                
+                if min_value['temperature'] > ds[3]:
+                    min_value['temperature'] = ds[3]
+                    min_value['name'] = ds[1]
+                elif min_value['temperature'] < ds[3]:
+                    continue
+                else:
+                    print('something is wrong')
+
+                dtr_value['tmp_range'] = ds[4]
+                dtr_value['name'] = ds[1]
+                dtr_value['month'] = ds[0]
+
+            # txx_year_value.append(max_value)
+            # tnn_year_value.append(min_value)
+            # dtr_year_value.append(dtr_value)
+            
+        for region in tqdm(province_coord(), desc="Loading region & province...", ascii=False, ncols=75, colour='yellow'): 
+            for province in region:
+
+                if (avg_dtr is not None and province_shape1 is not None) and (avg_pre is not None and province_shape2 is not None) and (avg_tmn is not None and province_shape3 is not None) and (avg_tmp is not None and province_shape4 is not None) and (avg_tmx is not None and province_shape5 is not None):
+                    feature = {
+                        "type": "Feature",
+                        "geometry": mapping(geometry),  
+                        "properties": {
+                            "name": name,
+                            "dtr": float(avg_dtr),
+                            "pre": float(avg_pre),
+                            "tmn": float(avg_tmn),
+                            "tmp": float(avg_tmp),
+                            "tmx": float(avg_tmx),
+                            "region": region_name,
+                            "txx":max_value['temperature'],
+                            "tnn":min_value['temperature'],
+                            "month": month
+                        }
+                    }
+                    geojson_data["features"].append(feature)
+
+    output_geojson_path = f'./src/Geo-data/Year-Dataset/n_data_{year}.json'
     with open(output_geojson_path, 'w', encoding='utf-8') as geojson_file:
         json.dump(geojson_data, geojson_file, indent=2, ensure_ascii=False)
 
