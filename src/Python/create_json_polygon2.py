@@ -116,7 +116,7 @@ for year in tqdm(range(start_year, stop_year), desc="Create GeoJson...", ascii=F
         tmn_values = tmn_in_month['tmn'].values  
         
         tmp_in_month = tmp.isel(time=time_index) 
-        tmp_values = tmp_in_month['tmp'].values  
+        tmp_values = tmp_in_month['tmp'].values 
         
         tmx_in_month = tmx.isel(time=time_index) 
         tmx_values = tmx_in_month['tmx'].values  
@@ -184,13 +184,13 @@ for year in tqdm(range(start_year, stop_year), desc="Create GeoJson...", ascii=F
                         "geometry": mapping(geometry),  
                         "properties": {
                             "name": name,
-                            "dtr": float(avg_dtr),
+                            "region": region_name,
+                            "month": month,
                             "pre": float(avg_pre),
+                            "dtr": float(avg_dtr),
                             "tmn": float(avg_tmn),
                             "tmp": float(avg_tmp),
-                            "tmx": float(avg_tmx),
-                            "region": region_name,
-                            "month": month
+                            "tmx": float(avg_tmx)
                         }
                     }
                     geojson_data["features"].append(feature)
