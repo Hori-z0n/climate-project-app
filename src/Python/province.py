@@ -3,7 +3,7 @@ import numpy as np
 from shapely.geometry import Polygon, MultiPolygon
 
 # โหลด shapefile ของประเทศไทย
-gdf = gpd.read_file("src/Geo-data/thailand-Geo.json")
+gdf = gpd.read_file("./src/Geo-data/thailand-Geo.json")
 
 # รายชื่อจังหวัดภาคอีสานและภาคเหนือที่ต้องการ 
 def province_coord():

@@ -1,10 +1,5 @@
-import cartopy.feature as cfeature
-import cartopy.crs as ccrs
 import xarray as xr
-import numpy as np
-import pandas as pd
 import geopandas as gpd
-from shapely.geometry import mapping
 import json
 from tqdm import tqdm, trange
 import warnings
@@ -68,30 +63,31 @@ for year in tqdm(range(start_year, stop_year)):
         "type": "FeatureCollection",
         "features": []
     }
-
+    count = 0
     for month in tqdm(range(start_month, stop_month), desc="Start Create Value Climate Extreme Index...", ascii=False, ncols=75, colour='orange'):
-        for i in range(0, 924):
+        for i in range(0, 77):
             features = {
                 "type": "Feature",
                 "geometry": {
-                    "type":data['features'][i]['geometry']['type'],
-                    "coordinates": data['features'][i]['geometry']['coordinates']
+                    "type":data['features'][count]['geometry']['type'],
+                    "coordinates": data['features'][count]['geometry']['coordinates']
                 },  
                 "properties": {
-                'name': data['features'][i]['properties']['name'],
-                'region': data['features'][i]['properties']['region'],
-                'month': data['features'][i]['properties']['month'],
-                'pre': data['features'][i]['properties']['pre'],
-                'dtr': data['features'][i]['properties']['dtr'], 
-                'tmn': data['features'][i]['properties']['tmn'], 
-                'tmp': data['features'][i]['properties']['tmp'], 
-                'tmx': data['features'][i]['properties']['tmx'],
+                'name': data['features'][count]['properties']['name'],
+                'region': data['features'][count]['properties']['region'],
+                # 'month': data['features'][count]['properties']['month'],
+                'month': month,
+                'pre': data['features'][count]['properties']['pre'],
+                'dtr': data['features'][count]['properties']['dtr'], 
+                'tmn': data['features'][count]['properties']['tmn'], 
+                'tmp': data['features'][count]['properties']['tmp'], 
+                'tmx': data['features'][count]['properties']['tmx'],
                 'txx': txx_year_value[month-1],
                 'tnn': tnn_year_value[month-1]
                 }
             }
             geojson_data['features'].append(features)
-
+            count += 1
     output_geojson_path = f'./src/Geo-data/Year-Dataset/data_{year}_V2.json'
     with open(output_geojson_path, 'w', encoding='utf-8') as geojson_file:
         json.dump(geojson_data, geojson_file, indent=2, ensure_ascii=False)
