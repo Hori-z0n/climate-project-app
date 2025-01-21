@@ -34,8 +34,8 @@ dates = []
 times = '1960'
 start_time = '1901'
 stop_time = '2023'
-# for date in tqdm(pre_data.sel(time = str(times))['time'], ascii=False, ncols=75, leave=False):
-for date in tqdm(pre_data.sel(time = slice(start_time, stop_time))['time'], ascii=False, ncols=75, leave=False):
+# for date in tqdm(pre_data.sel(time = slice(start_time, stop_time))['time'], ascii=False, ncols=75, leave=False):
+for date in tqdm(pre_data.sel(time = str(times))['time'], ascii=False, ncols=75, leave=False):
     ymd = str(date.values)[0:10]
 
     data_filtered = pre_data.sel(time=ymd)
@@ -50,7 +50,7 @@ for date in tqdm(pre_data.sel(time = slice(start_time, stop_time))['time'], asci
 
     lon_step = float(lon[1] - lon[0])
     lat_step = float(lat[1] - lat[0])
-
+    
     pre_value = data_avg.values
 
     features = []
@@ -86,7 +86,7 @@ for date in tqdm(pre_data.sel(time = slice(start_time, stop_time))['time'], asci
     ln = {}
     count = 1
     for idx, grid in gdf_tmp_clipped.iterrows():
-        x, y = grid.geometry.centroid.x, grid.geometry.centroid.y
+        # x, y = grid.geometry.centroid.x, grid.geometry.centroid.y
         # x_coordinates.append(x)
         # y_coordinates.append(y)
         # station_n.append(f"station{loop}-{x}-{y}")

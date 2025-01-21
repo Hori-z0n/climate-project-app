@@ -71,7 +71,8 @@ stop_year = 1961
 ary_month = ['01','02','03','04','05','06','07','08','09','10','11','12']
 for year in range(start_year, stop_year):
     count = 1
-    for date in tqdm(pre_data.sel(time=str(year))['time'], ascii=False, ncols=75, leave=False):
+    # for date in tqdm(pre_data.sel(time=str(year))['time'], ascii=False, ncols=75, leave=False):
+    for date in pre_data.sel(time=str(year))['time']:
         ymd = str(date.values)[0:10]
         data_filtered1 = pre_data.sel(time=ymd)
         data_filtered2 = tmn_data.sel(time=ymd)
@@ -133,7 +134,8 @@ for year in range(start_year, stop_year):
     avg_pre = []
     avg_tmn = []
     avg_tmx = []
-    for month in tqdm(ary_month[0:1], desc="Create polygon...", leave=False, ncols=75):
+    # for month in tqdm(ary_month[0:1], desc="Create polygon...", leave=False, ncols=75):
+    for month in ary_month[0:1]:
         monthly_data = data[data['month'] == month]
         seen = set()
         _day = []

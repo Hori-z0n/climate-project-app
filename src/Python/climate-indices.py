@@ -42,7 +42,8 @@ import netCDF4 as nc
 
 import xarray as xr
 import numpy as np
-
+import json
+from tqdm import tqdm 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
@@ -50,7 +51,10 @@ from datetime import datetime
 from scipy import stats as st
 from tqdm import tqdm
 
+from shapely.geometry import mapping
+
 import climate_V2
+from province import province_coord
 
 # from distributed import Client
 # from dask.distributed import Client
@@ -59,16 +63,18 @@ import climate_V2
 import warnings
 warnings.filterwarnings('ignore')
 
-# cld = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.cld.dat.nc')
-# dtr = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.dtr.dat.nc')
-# frs = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.frs.dat.nc')
-# pet = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.pet.dat.nc')
-# pre = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.pre.dat.nc')
-# tmn = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.tmn.dat.nc')
-# tmp = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.tmp.dat.nc')
-# tmx = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.tmx.dat.nc')
-# vap = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.vap.dat.nc')
-# wet = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.wet.dat.nc')
+# shapefile = gpd.read_file('src/Geo-data/shapefile-lv1-thailand.json')
+
+cld = 'C:/Netcdf/cru_ts4.08.1901.2023.cld.dat.nc'
+dtr = 'C:/Netcdf/cru_ts4.08.1901.2023.dtr.dat.nc'
+frs = 'C:/Netcdf/cru_ts4.08.1901.2023.frs.dat.nc'
+pet = 'C:/Netcdf/cru_ts4.08.1901.2023.pet.dat.nc'
+pre = 'C:/Netcdf/cru_ts4.08.1901.2023.pre.dat.nc'
+tmn = 'C:/Netcdf/cru_ts4.08.1901.2023.tmn.dat.nc'
+tmp = 'C:/Netcdf/cru_ts4.08.1901.2023.tmp.dat.nc'
+tmx = 'C:/Netcdf/cru_ts4.08.1901.2023.tmx.dat.nc'
+vap = 'C:/Netcdf/cru_ts4.08.1901.2023.vap.dat.nc'
+wet = 'C:/Netcdf/cru_ts4.08.1901.2023.wet.dat.nc'
 
 # temperature = 'C:/Netcdf/ERA5-post-processed-daily-statistics-on-single-levels-from-1940-to-present-tmp.nc'
 # precipitation = 'C:/Netcdf/ERA5-post-processed-daily-statistics-on-single-levels-from-1940-to-present.nc'
@@ -80,29 +86,41 @@ max_temperature = 'C:/Netcdf/TH_tmax_ERA5_day.1960-2022.nc'
 min_temperature = 'C:/Netcdf/TH_tmin_ERA5_day.1960-2022.nc'
 temperature = 'C:/Netcdf/TH_temperature_day_1940-2024.nc'
 
-# da_data = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.pre.dat.nc')
-# ds_RR = da_data['pre']
-# # ds_RR_Thailand= ds_RR.sel(lon=slice(96, 106), lat=slice(4, 21),time='1901')
-# ds_RR_Thailand= ds_RR.sel(lon=slice(96, 106), lat=slice(4, 21),time=slice('2015', '2018'))
+shapefile = gpd.read_file('./src/Geo-data/thailand-Geo.json')
 
-# i=3
-# test = climate_V2.Climate(ds_RR_Thailand)
-# ddata = test.calculate_spi(thresh=i,dimension='time',precip_var='pre')
-# da_data['spi_3'] = ddata[9]
-# # ddata[9].plot(cmap='RdBu', col='time', col_wrap=4, vmin=-2.5, vmax=2.5)
-# da_data['spi_3'].sel(lon=slice(96, 106), lat=slice(4, 21), time='2016').plot(cmap='RdBu', col='time', col_wrap=4, vmin=-2.5, vmax=2.5)
-# # plt.ylim(0,15)
-# # plt.xlim(-20,15)
-# plt.show()
+# ds = xr.open_dataset(tmp)
+# print(ds['tmp'].attrs)
+# ds = xr.open_dataset(temperature)
+# ds = ds.rename(t='t2m')
+# ds = ds.rename(valid_time='time')
+# ds['t2m'].attrs['units'] = 'C'
+# ds['t2m'].values - 273.15
+# ds.to_netcdf('TH_temperature_day_1940-2024.nc')
+
+ds = xr.open_dataset(temperature)
+# temp = ds.sel(time=slice('2000-01-01', '2000-12-31')).t2m
+# ds = ds.sel(time=slice('2000-01-01', '2000-12-31'))
+temp = ds.t2m
+print(temp)
+tasmax_per = percentile_doy(temp, per=10).sel(percentiles=10)
+cold_days = xclim.indices.tx10p(temp, tasmax_per)
+print(cold_days)
+cold_days.plot()
+plt.show()
+# climate_index = ClimateIndex(tmp)
+# climate_index = ClimateIndex(max_temperature)
+# climate_index.pre_process(time_range=('1901-01-01', '1902-12-31'), resample_freq='M', fill_missing='interpolate')
+# climate_index.pre_process(time_range=('2000-01-01', '2000-12-31'), resample_freq='D', fill_missing='interpolate')
+# print(climate_index.data.indexes)
+# tx10p_index = climate_index.calculate_tx10p(temp_var='mx2t')
+# print(tx10p_index)
 
 
+# temp = xr.open_dataset(temperature)
+# max_temp = xr.open_dataset(max_temperature)
+# min_temp = xr.open_dataset(min_temperature)
 
-# pr = xr.open_dataset(precipitation)
-# pre = pr.tp
-# rx1day = xclim.indices.max_1day_precipitation_amount(pre, freq="YS")
-# # print(rx1day['time'])
-# print(rx1day.sel(time='1960-01-01'))
+# print(temp['t'])
+# xclim.indices.daily_temperature_range(min_temp, max_temp, freq="YS", op="mean")
 
-temp = xr.open_dataset(temperature)
-print(temp['t'])
-xclim.indices.daily_temperature_range(temp.t, )
+
