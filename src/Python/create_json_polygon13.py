@@ -1,9 +1,13 @@
 import xarray as xr
 import pandas as pd
 import json
+from shapely.geometry import mapping
 import geopandas as gpd
 import pandas as pd
 import xclim
+from province import province_coord 
+from gridcal2 import calculate_weighted_temperature
+from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -12,7 +16,7 @@ ds_tmax = xr.open_dataset("C:/Netcdf/TH_tmax_ERA5_day.1960-2022.nc")
 ds_tmin = xr.open_dataset("C:/Netcdf/TH_tmin_ERA5_day.1960-2022.nc")
 ds_pr = xr.open_dataset("C:/Netcdf/TH_precipitation_day_1960-2022.nc")
 # ds_pr = xr.open_dataset("C:/Netcdf/convert_precipitation.nc")
-
+shapefile = gpd.read_file('./src/Geo-data/thailand-Geo.json')
 
 def create_grid_polygon(lon_center, lat_center, lon_step, lat_step):
     return [
@@ -27,7 +31,7 @@ def create_grid_polygon(lon_center, lat_center, lon_step, lat_step):
 lon_step = float(ds_tmax['longitude'][1] - ds_tmax['longitude'][0])
 lat_step = float(ds_tmax['latitude'][1] - ds_tmax['latitude'][0])
 
-for year in range(1960, 1966):
+for year in tqdm(range(1960, 1966), leave=False, desc="Create by Year...", ascii=False, ncols=75,):
 
     data_tmax_year = ds_tmax.sel(time=str(year))
     data_tmin_year = ds_tmin.sel(time=str(year))
@@ -86,10 +90,42 @@ for year in range(1960, 1966):
         "features": features
     }
 
-    data = gpd
-    # output_file = f"./src/Geo-data/Era-Dataset/era_data_grid_{year}.json"
-    # with open(output_file, 'w', encoding='utf-8') as f:
-    #     json.dump(geojson_data, f, ensure_ascii=False, indent=4)
-        
-    # print(f"Data year {year} has been saved file in folder {output_file}")
+    data = gpd.GeoDataFrame.from_features(geojson_data['features'])
+    
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": []
+    }
+    features = []
+    for month in range(1, 13):
+        monthly_data = data[data['month'] == month]
+        for region in province_coord():
+            for province in region:
+                name, geometry, region_name = province
+                average_data, province_shape = calculate_weighted_temperature(name, shapefile, monthly_data)
+                features.append({
+                    "type": "Feature",
+                        "geometry": mapping(geometry),
+                        "properties": {
+                            "name": name,
+                            "region": region_name,
+                            "month": month,
+                            # "temperature": float(f"{average_data['temperature']:.2f}"),
+                            # "dtr": float(f"{average_data['dtr']:.2f}"),
+                            "pre": float(f"{average_data['pre']:.2f}"),
+                            "tmin": float(f"{average_data['tmin']:.2f}"),
+                            "tmax": float(f"{average_data['tmax']:.2f}"),
+                            "rx1day": float(f"{average_data['rx1day']:.2f}"),
+                        }
+                })
 
+        geojson_data = {
+            "type": "FeatureCollection",
+            "features": features
+        }
+
+    output_file = f"./src/Geo-data/Era-Dataset/era_data_polygon_{year}.json"
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(geojson_data, f, ensure_ascii=False, indent=4)
+        
+    print(f"Data year {year} has been saved file in folder {output_file}")

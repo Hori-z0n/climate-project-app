@@ -35,21 +35,34 @@ from province import province_coord
 import warnings
 warnings.filterwarnings('ignore')
 
-da_data = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.pre.dat.nc')
-ds_RR = da_data['pre']
-# ds_RR_Thailand= ds_RR.sel(lon=slice(96, 106), lat=slice(4, 21),time='1901')
-ds_RR_Thailand= ds_RR.sel(lon=slice(96, 106), lat=slice(4, 21),time=slice('2015', '2018'))
+provinces=['Amnat Charoen', 'Ang Thong', 'Bangkok Metropolis', 'Bueng Kan', 'Buri Ram', 'Chachoengsao', 'Chai Nat',
+        'Chaiyaphum', 'Chanthaburi', 'Chiang Mai', 'Chiang Rai', 'Chon Buri', 'Chumphon',
+        'Kalasin', 'Kamphaeng Phet', 'Kanchanaburi', 'Khon Kaen', 'Krabi', 'Lampang',
+        'Lamphun', 'Loei', 'Lop Buri', 'Mae Hong Son', 'Maha Sarakham', 'Mukdahan',
+        'Nakhon Nayok', 'Nakhon Pathom', 'Nakhon Phanom', 'Nakhon Ratchasima', 'Nakhon Sawan', 'Nakhon Si Thammarat',
+        'Nan', 'Narathiwat', 'Nong Bua Lam Phu', 'Nong Khai', 'Nonthaburi', 'Pathum Thani', 
+        'Pattani', 'Phangnga', 'Phatthalung', 'Phayao', 'Phetchabun', 'Phetchaburi',
+        'Phichit', 'Phitsanulok', 'Phra Nakhon Si Ayutthaya', 'Phrae', 'Phuket', 'Prachin Buri',
+        'Prachuap Khiri Khan', 'Ranong', 'Ratchaburi', 'Rayong', 'Roi Et', 'Sa Kaeo',
+        'Sakon Nakhon', 'Samut Prakan', 'Samut Sakhon', 'Samut Songkhram', 'Saraburi', 'Satun',
+        'Si Sa Ket', 'Sing Buri', 'Songkhla', 'Sukhothai', 'Suphan Buri', 'Surat Thani',
+        'Surin', 'Tak', 'Trang', 'Trat', 'Ubon Ratchathani', 'Udon Thani',
+        'Uthai Thani', 'Uttaradit', 'Yala', 'Yasothon']
 
-i=3
-test = climate_V2.Climate(ds_RR_Thailand)
-ddata = test.calculate_spi(thresh=i,dimension='time',precip_var='pre')
-da_data['spi_3'] = ddata[9]
-# ddata[9].plot(cmap='RdBu', col='time', col_wrap=4, vmin=-2.5, vmax=2.5)
-da_data['spi_3'].sel(lon=slice(96, 106), lat=slice(4, 21), time='2015').plot(cmap='RdBu', col='time', col_wrap=4, vmin=-2.5, vmax=2.5)
-# plt.ylim(0,15)
-# plt.xlim(-20,15)
-plt.show()
+# da_data = xr.open_dataset('C:/Netcdf/cru_ts4.08.1901.2023.pre.dat.nc')
+# ds_RR = da_data['pre']
+# # ds_RR_Thailand= ds_RR.sel(lon=slice(96, 106), lat=slice(4, 21),time='1901')
+# ds_RR_Thailand= ds_RR.sel(lon=slice(96, 106), lat=slice(4, 21),time=slice('2015', '2018'))
 
+# i=3
+# test = climate_V2.Climate(ds_RR_Thailand)
+# ddata = test.calculate_spi(thresh=i,dimension='time',precip_var='pre')
+# da_data['spi_3'] = ddata[9]
+# # ddata[9].plot(cmap='RdBu', col='time', col_wrap=4, vmin=-2.5, vmax=2.5)
+# da_data['spi_3'].sel(lon=slice(96, 106), lat=slice(4, 21), time='2015').plot(cmap='RdBu', col='time', col_wrap=4, vmin=-2.5, vmax=2.5)
+# # plt.ylim(0,15)
+# # plt.xlim(-20,15)
+# plt.show()
 
 
 #Standardized Precipitation Index Function
@@ -83,16 +96,19 @@ def spi(ds, thresh):
     
     return ds_ma, ds_In, ds_mu, ds_sum, n, A, alpha, beta, gamma, norm_spi
 # gdf = gpd.read_file("./src/Geo-data/Year-Dataset/spi.json")
-# print(gdf)
-gdf = gpd.read_file("./src/Geo-data/Year-Dataset/station.json")
-data = pd.read_csv('precipitation.csv')
-dates = data['time'].values
-# print(dates)
-data.drop('time', inplace=True, axis=1)
+# gdf = gpd.read_file("./src/Geo-data/Year-Dataset/station.json")
+# data = pd.read_csv('precipitation.csv')
+# dates = data['time'].values
+# data.drop('time', inplace=True, axis=1)
 
-index = pd.DataFrame()
-data = data.set_index(pd.date_range('1901', '2024', freq='M'))
-times = [3, 6, 9, 12, 24]
+# index = pd.DataFrame()
+# data = data.set_index(pd.date_range('1901', '2024', freq='M'))
+# times = [3, 6, 9, 12, 24]
+# for i in times:
+#     x = spi(data['station1'], i)
+#     data['spi_'+str(i)] = x[9]
+
+# --------------------------------------------------------------------------------------
 
 # features = []
 # count = 0
@@ -137,20 +153,73 @@ times = [3, 6, 9, 12, 24]
 # with open(output_geojson_path, 'w', encoding='utf-8') as geojson_file:
 #     json.dump(geojson_data, geojson_file, indent=236, ensure_ascii=False)
 
-fig, axes = plt.subplots(nrows=5, figsize=(15, 10))
-plt.subplots_adjust(hspace=0.15)
-for i, ax in enumerate(axes):
-    col_scheme=np.where(data['spi_'+str(times[i])]>0, 'b','r')
+# --------------------------------------------------------------------------------------
 
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
-    ax.bar(data.index, data['spi_'+str(times[i])], width=25, align='center', color=col_scheme, label='SPI '+str(times[i]))
-    ax.axhline(y=0, color='k')
-    ax.xaxis.set_major_locator(mdates.YearLocator(2))
-    ax.legend(loc='upper right')
-    ax.set_yticks(range(-3,4), range(-3,4))
-    ax.set_ylabel('SPI', fontsize=12)
-    ax.tick_params(axis='x', labelrotation = 100)
-    if i<len(times)-1:
-        ax.set_xticks([],[])
+# fig, axes = plt.subplots(nrows=5, figsize=(15, 10))
+# plt.subplots_adjust(hspace=0.15)
+# for i, ax in enumerate(axes):
+#     col_scheme=np.where(data['spi_'+str(times[i])]>0, 'b','r')
 
+#     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+#     ax.bar(data.index, data['spi_'+str(times[i])], width=25, align='center', color=col_scheme, label='SPI '+str(times[i]))
+#     ax.axhline(y=0, color='k')
+#     ax.xaxis.set_major_locator(mdates.YearLocator(2))
+#     ax.legend(loc='upper right')
+#     ax.set_yticks(range(-3,4), range(-3,4))
+#     ax.set_ylabel('SPI', fontsize=12)
+#     ax.tick_params(axis='x', labelrotation = 100)
+#     if i<len(times)-1:
+#         ax.set_xticks([],[])
+
+# plt.show()
+
+# --------------------------------------------------------------------------------------
+
+start_year = 1965
+stop_year = 1990
+spi_data = []
+# data = pd.DataFrame()
+
+for year in range(start_year, stop_year):
+    data = gpd.read_file(f"C:/Users/konla/OneDrive/Desktop/json/era_data_polygon_{year}.json")
+    one = data[data['name'] == provinces[0]]
+    for ds in one['pre'].values:
+        spi_data.append(ds)
+
+dict = {"pre":spi_data}
+spi_data = pd.DataFrame(dict)
+data = spi_data.set_index(pd.date_range(str(start_year), str(stop_year), freq='M'))
+x = spi(data, 1)
+data['spi'] = x[9]
+print(data)
+# times = [3, 6, 9, 12, 24]
+# for i in times:
+#     x = spi(data['pre'], i)
+#     data['spi_'+str(i)] = x[9]
+
+# fig, axes = plt.subplots(nrows=5, figsize=(15, 10))
+# plt.subplots_adjust(hspace=0.15)
+# for i, ax in enumerate(axes):
+#     col_scheme=np.where(data['spi_'+str(times[i])]>0, 'b','r')
+
+#     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+#     ax.bar(data.index, data['spi_'+str(times[i])], width=25, align='center', color=col_scheme, label='SPI '+str(times[i]))
+#     ax.axhline(y=0, color='k')
+#     ax.xaxis.set_major_locator(mdates.YearLocator(2))
+#     ax.legend(loc='upper right')
+#     ax.set_yticks(range(-3,4), range(-3,4))
+#     ax.set_ylabel('SPI', fontsize=12)
+    
+#     if i<len(times)-1:
+#         ax.set_xticks([],[])
+
+# plt.show()
+fig, axes = plt.subplots(nrows=1, figsize=(15, 10))
+col_scheme=np.where(data['spi']>0, 'b','r')
+axes.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+axes.bar(data.index, data['spi'], width=25, align='center', color=col_scheme)
+axes.axhline(y=0, color='k')
+axes.legend(loc='upper right')
+axes.set_ylabel('SPI', fontsize=12)
 plt.show()
+

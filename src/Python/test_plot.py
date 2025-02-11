@@ -16,8 +16,12 @@ fig, ax = plt.subplots(figsize=(10, 10))
 # test = gpd.read_file("src/Geo-data/thailand-Geo.json")
 # test = gpd.read_file('./src/Geo-data/province_mean_temp_2001.json')
 # test = gpd.read_file('C:/Users/konla/OneDrive/Desktop/climate-project-app/src/json_series/json_1901-01-16.json')
+# test = gpd.read_file('C:/Users/konla/OneDrive/Desktop/climate-project-app/src/Geo-data/Era-Dataset/era_data_polygon_1960.json')
+# test = gpd.read_file("C:/Users/konla/OneDrive/Desktop/climate-project-app/src/Geo-data/Era-Dataset/cru_data_Amnat Charoen.json")
+# test = gpd.read_file("C:/Users/konla/OneDrive/Desktop/climate-project-app/src/Geo-data/Era-Dataset/cru_data.json")
+test = gpd.read_file('C:/Users/konla/OneDrive/Desktop/climate-project-app/src/Geo-data/Era-Dataset/cru_data_Ang Thong.json')
 # thai_grid = gpd.read_file('./src/shapefile/gadm41_THA_1.shp')
-# test.plot(column='temperature', legend=True)
+# test.plot(column='pre', legend=True)
 # test.plot(ax=ax, column='temperature', legend=True, cmap='jet')
 # thai_grid.geometry.boundary.plot(ax=ax, color=None,edgecolor='k',linewidth = .5)
 # shp_int = climate.intersection_shp(test, thai_grid)
@@ -25,21 +29,24 @@ fig, ax = plt.subplots(figsize=(10, 10))
 # shp_int.geometry.boundary.plot(ax=ax, color=None,edgecolor='k',linewidth = 0.25)
 # plt.xlabel('Lon')
 # plt.ylabel('Lat')
-
-thai_shape = gpd.read_file("src/shapefile/gadm41_THA_1.shp")
-thai_source = gpd.read_file("src/Geo-data/nc_to_json_1960.json")
-thailand = gpd.read_file("src/Geo-data/thailand-Geo.json")
+# test = test[test['time'] == '1901-03-16']
+print(test)
+# test.plot(ax=ax, column='pre')
+# thai_shape = gpd.read_file("src/shapefile/gadm41_THA_1.shp")
+# thai_source = gpd.read_file("src/Geo-data/nc_to_json_1960.json")
+# thailand = gpd.read_file("src/Geo-data/thailand-Geo.json")
 # thai_grid = gpd.read_file('src/shapefile/ThaiGrid.shp')
-gdf_shapefile = gpd.read_file('src/Geo-data/shapefile-lv1-thailand.json')
-
-gdf_tmp_thailand = thai_source.cx[97.5:105.5, 5:21]
-gdf_shapefile_thailand = gdf_shapefile.cx[97.5:105.5, 5:21]
+# gdf_shapefile = gpd.read_file('src/Geo-data/shapefile-lv1-thailand.json')
+# thailand= thailand[thailand['NAME_1'] == 'Ang Thong']
+# thailand.geometry.boundary.plot(ax=ax, color='black', linewidth=0.5)
+# gdf_tmp_thailand = thai_source.cx[97.5:105.5, 5:21]
+# gdf_shapefile_thailand = gdf_shapefile.cx[97.5:105.5, 5:21]
 
 # rx1day = gpd.read_file('./src/Geo-data/Year-Dataset/data_1960.json')
 # rx1day = gpd.read_file('./src/Geo-data/Year-Dataset/rx1day_1960.json')
 # rx1day = gpd.read_file('./src/Geo-data/Year-Dataset/rx1day_1961.json')
-rx1day = gpd.read_file('./src/Geo-data/Year-Dataset/rx1day_2022.json')
-rx1day.plot(ax=ax, cmap='jet')
+# rx1day = gpd.read_file('./src/Geo-data/Year-Dataset/rx1day_2022.json')
+# rx1day.plot(ax=ax, cmap='jet')
 
 # gdf_tmp_clipped = gdf_tmp_thailand.clip(gdf_shapefile_thailand)
 # gdf_tmp_clipped.plot(column='temperature', ax=ax, legend=True, cmap='jet', legend_kwds={'label': "Temperature (°C)", 'orientation': "horizontal"})
@@ -51,4 +58,4 @@ rx1day.plot(ax=ax, cmap='jet')
 # shp_int = shp_int[['geometry']]
 # shp_int.geometry.boundary.plot(ax=ax, color='black', linewidth=0.5)
 
-plt.show()
+# plt.show()
